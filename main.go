@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -30,12 +31,16 @@ func scrapeURL(url string) (string, error) {
 	return html, nil
 }
 
-func main() {
-	urls := []string{
-		"https://example.com",
-		"https://golang.org",
-		"https://github.com",
+func parse_args() []string {
+	if len(os.Args) < 1 { // need at least one url
+		fmt.Println("Usage: go run main.go <url1> <url2> ...")
+		os.Exit(1)
 	}
+	return os.Args[1:]
+}
+
+func main() {
+	urls := parse_args()
 
 	type result struct {
 		url  string
@@ -47,6 +52,7 @@ func main() {
 
 	for _, url := range urls {
 		go func(u string) {
+			fmt.Println("Scraping:", u)
 			html, err := scrapeURL(u)
 			results <- result{url: u, html: html, err: err}
 		}(url)
